@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>BDO - 交涉力計算機</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- font-awesome -->
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css' />
+    <!-- accounting.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
+    <!-- lodash.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+    <!-- Vue.js -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js'></script>
+
+    <style>
+        body {
+            font-family: 'Microsoft Jhenghei';
+            background-color: #1d1d1d;
+            color: #fff;
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        .wrapper {
+            min-height: 100%;
+        }
+
+        .footer {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            background-color: #1d1d1d;
+            font-size: 0.8rem;
+            line-height: 1.5rem;
+        }
+
+        .container-fluid {
+            padding-right: 0px;
+            padding-left: 0px;
+        }
+
+        .row {
+            margin: 0
+        }
+
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .btn-wrap {
+            margin: auto;
+        }
+
+        .calcBtn {
+            margin-left: -5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container-fluid wrapper">
+        <!-- title -->
+        <div class="row my-3">
+            <div class="col text-center">
+                <h1 class="h3">交涉力計算機</h1>
+            </div>
+        </div>
+
+        <!-- new -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <div class="row">
+                    <div class="col-12">
+                        <label for="power">交涉力</label>
+                        <input type="number" id="power" class="" v-model="item.power" style="width: 180px;">
+                    </div>
+                    <div class="col-12">
+                        <label for="times" style="width: 3em;">次數</label>
+                        <input type="number" id="times" class="" v-model="item.times" style="width: 180px;">
+                    </div>
+                    <div class="col-12 text-center">
+                        <button @click="add(1)" class="btn rounded-circle bg-info text-white" style="width:2.5rem"><span
+                                class="calcBtn">+1</span></button>
+                        <button @click="add(2)" class="btn rounded-circle bg-info text-white" style="width:2.5rem"><span
+                                class="calcBtn">+2</span></button>
+                        <button @click="add(3)" class="btn rounded-circle bg-info text-white" style="width:2.5rem"><span
+                                class="calcBtn">+3</span></button>
+                        <button @click="add(4)" class="btn rounded-circle bg-info text-white" style="width:2.5rem"><span
+                                class="calcBtn">+4</span></button>
+                        <button @click="add(5)" class="btn rounded-circle bg-info text-white" style="width:2.5rem"><span
+                                class="calcBtn">+5</span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 btn-wrap text-center border-bottom">
+                <button @click="addItem" class="btn rounded-circle bg-primary text-white my-3"><i
+                        class="fas fa-plus"></i></button>
+            </div>
+        </div>
+
+        <!-- for -->
+        <div class="row">
+            <div class="col-12" v-for="(item, index) in items" :key="index">
+                <table class="table text-white">
+                    <tr>
+                        <th>交涉力</th>
+                        <th>次數</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>{{item.power}}</td>
+                        <td>{{item.times}}</td>
+                        <td>{{item.times}}</td>
+                    </tr>
+                </table>
+                
+                
+            </div>
+        </div>
+
+        <!-- footer -->
+        <div class="jumbotron jumbotron-fluid border-top m-0 p-2 footer text-center">
+            <a href="https://github.com/jessie150271" target="_blank" class="h1 text-white">
+                <i class="fab fa-github h2"></i></a>
+            <p>&copy;2020 Jessie Huang All Rights Reserved</p>
+        </div>
+    </div>
+
+    <script>
+        var _ = require('lodash');
+    </script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                item: {
+                    'power': 0,
+                    'times': 0
+                },
+                items: [],
+            },
+            methods: {
+                add: function(num = 1) {
+                    this.item.times += parseInt(num);
+                },
+                addItem() {
+                    this.items.push(_.cloneDeep(this.item));
+                    this.item.power = 0;
+                    this.item.times = 0;
+                },
+                deleteItem() {
+
+                },
+            },
+        })
+    </script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
