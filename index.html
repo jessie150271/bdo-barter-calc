@@ -6,9 +6,6 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.js"
-        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -18,6 +15,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
     <!-- lodash.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+    <!-- axios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
     <!-- Vue.js -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js'></script>
 
@@ -41,6 +40,12 @@
             -webkit-appearance: none;
         }
 
+        .input-group-text,
+        input {
+            background-color: #1d1d1d !important;
+            color: #fff !important;
+        }
+
         /* footer置底 */
         html,
         body {
@@ -54,11 +59,11 @@
             justify-content: end;
         }
 
-        .section-main {
+        .main {
             flex: 1;
         }
 
-        .section-footer {
+        .footer {
             background-color: #1d1d1d;
             font-size: 0.8rem;
             line-height: 1.5rem;
@@ -77,95 +82,223 @@
         .addBtn {
             background-color: #555;
         }
+
+        table {
+            transition: all .5;
+        }
+
+        .table-dark {
+            background-color: #1d1d1d;
+        }
+
+        .input-group {
+            /* 超出不換行 */
+            flex-wrap: nowrap;
+            /* 取代form-control */
+            margin-bottom: 1rem;
+        }
+
+        .input-isValuePack {
+            justify-content: flex-start;
+        }
+
+        .input-reducing {
+            justify-content: flex-end;
+        }
+
+        .input-power,
+        .input-times {
+            justify-content: center;
+        }
+
+        .percentage {
+            position: absolute;
+            top: 6px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        #reducing {
+            padding-left: 0;
+        }
+
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity .3s
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0
+        }
+
+        th button{
+            max-width: 40px;
+        }
+
     </style>
 </head>
 
 <body>
     <div id="app" class="container-fluid wrapper">
-        <section class="section-main">
+        <div class="main">
             <!-- new -->
             <section class="section-new row">
-                <div class="col-12 text-center">
+                <div class="col-12 col-sm-6 offset-sm-3 col-md-4 offset-md-4 new-form text-center p-0">
                     <h1 class="h3 my-3">交涉力計算機</h1>
                     <div class="row">
-                        <div class="col-12">
-                            <label for="power">交涉力</label>
-                            <input type="number" id="power" class="" v-model="item.power" style="width: 180px;">
+                        <div class="col-7 p-0">
+                            <td class="row">
+                                <div class="col input-group input-reducing pr-xs-0" data-toggle="tooltip"
+                                    title="交易等級影響的減少數值(%)">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="reducing">減少</label>
+                                    </div>
+                                    <div class="percentage">%</div>
+                                    <input type="number" step="0.01" id="reducing"
+                                        class="form-control text-center col-5 col-sm-12 col-md-6" v-model="reducing"
+                                        style="width: 70px;">
+                                </div>
+                            </td>
                         </div>
-                        <div class="col-12">
-                            <label for="times" style="width: 3em;">次數</label>
-                            <input type="number" id="times" class="" v-model="item.times" style="width: 180px;">
-                        </div>
-                        <div class="col-12 text-center">
-                            <button @click="add(1)" class="btn rounded-circle addBtn text-white"
-                                style="width:2.5rem"><span class="calcBtn">+1</span></button>
-                            <button @click="add(2)" class="btn rounded-circle addBtn text-white"
-                                style="width:2.5rem"><span class="calcBtn">+2</span></button>
-                            <button @click="add(3)" class="btn rounded-circle addBtn text-white"
-                                style="width:2.5rem"><span class="calcBtn">+3</span></button>
-                            <button @click="add(4)" class="btn rounded-circle addBtn text-white"
-                                style="width:2.5rem"><span class="calcBtn">+4</span></button>
-                            <button @click="add(5)" class="btn rounded-circle addBtn text-white"
-                                style="width:2.5rem"><span class="calcBtn">+5</span></button>
-                            <button @click="add(6)" class="btn rounded-circle addBtn text-white"
-                                style="width:2.5rem"><span class="calcBtn">+6</span></button>
+                        <div class="col-5 p-0">
+                            <td class="row">
+                                <div class="col input-group input-isValuePack pl-1 pr-xs-0">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="isValuePack">禮包</label>
+                                    </div>
+                                    <div class="input-group-append">
+                                        <label class="input-group-text" for="isValuePack">
+                                            <!-- hidden checkbox -->
+                                            <input type="checkbox" id="isValuePack" class="d-none" v-model="isValuePack"
+                                                style="width: 30px;">
+                                            <!-- custom display -->
+                                            <i v-if="isValuePack" class="fas fa-check" style="width: 1rem;"></i>
+                                            <i v-else class="fas fa-times" style="width: 1rem;"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </td>
                         </div>
                     </div>
-                </div>
-                <div class="col-12 btn-wrap text-center border-bottom">
-                    <button @click="addItem" class="btn rounded-circle bg-primary text-white my-3">
-                        <i class="fas fa-plus"></i></button>
+                    <div class="row">
+                        <div class="col-12 p-0">
+                            <td class="row">
+                                <div class="col-12 input-group input-power">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="power">目的地</label>
+                                    </div>
+                                    <input type="number" id="power"
+                                        class="form-control text-center col-5 col-sm-12 col-md-6" v-model="item.power">
+                                </div>
+                                <div class="col-12 input-group input-times">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="times">次　數</label>
+                                    </div>
+                                    <input type="number" id="times"
+                                        class="form-control text-center col-5 col-sm-12 col-md-6" v-model="item.times">
+                                </div>
+                                <div class="col-12 d-flex flex-nowrap justify-content-center">
+                                    <button @click="add(1)" class="btn rounded-circle btn-outline-secondary text-white"
+                                        style="width:2.5rem"><span class="calcBtn">+1</span></button>
+                                    <button @click="add(2)" class="btn rounded-circle btn-outline-secondary text-white"
+                                        style="width:2.5rem"><span class="calcBtn">+2</span></button>
+                                    <button @click="add(3)" class="btn rounded-circle btn-outline-secondary text-white"
+                                        style="width:2.5rem"><span class="calcBtn">+3</span></button>
+                                    <button @click="add(4)" class="btn rounded-circle btn-outline-secondary text-white"
+                                        style="width:2.5rem"><span class="calcBtn">+4</span></button>
+                                    <button @click="add(5)" class="btn rounded-circle btn-outline-secondary text-white"
+                                        style="width:2.5rem"><span class="calcBtn">+5</span></button>
+                                    <button @click="add(6)" class="btn rounded-circle btn-outline-secondary text-white"
+                                        style="width:2.5rem"><span class="calcBtn">+6</span></button>
+                                </div>
+                            </td>
+                        </div>
+                        <div class="col-12 btn-wrap text-center border-bottom">
+                            <button @click="addItem" class="btn rounded-circle btn-outline-primary text-white my-3">
+                                <i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <!-- for -->
-            <section class="section-arr row mt-3">
+            <section class="section-arr row my-3">
                 <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
                     <div class="total text-center">
-                        <span class="h3">{{totalPower}}</span>
+                        <span class="h3" :style="totalColor">{{format(totalPower)}}</span>
                     </div>
-                    <table class="table table-dark table-hover my-3">
-                        <thead>
-                            <tr>
-                                <th class="col-xs-4">交涉力</th>
-                                <th class="col-xs-2">次數</th>
-                                <th class="col-xs-5">總計</th>
-                                <th class="col-xs-1"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(item, index) in items" :key="index">
-                                <td>{{item.power}}</td>
-                                <td>{{item.times}}</td>
-                                <td>{{item.times*item.power}}</td>
-                                <th class="text-right"><button @click="deleteItem(index)" class="btn rounded-circle bg-danger text-white">
-                                        <i class="fas fa-minus"></i></button></th>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <transition name="fade">
+                        <table v-show="items.length" class="table table-dark table-hover">
+                            <thead >
+                                <tr>
+                                    <th class="col-xs-3 px-0 py-3 border-top-0">目的地</th>
+                                    <th class="col-xs-3 px-0 py-3 border-top-0">交涉力</th>
+                                    <th class="col-xs-2 px-0 py-3 border-top-0">次數</th>
+                                    <th class="col-xs-3 px-0 py-3 border-top-0">總計</th>
+                                    <th class="col-xs-1 text-right border-top-0"><button @click="deleteAll"
+                                            class="btn rounded-circle btn-outline-success text-white"
+                                            data-toggle="tooltip" title="重置">
+                                            <i class="fas fa-redo-alt"></i></button></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in items" :key="index">
+                                    <td>{{item.destination}}</td>
+                                    <td>{{format(item.power)}}</td>
+                                    <td>{{format(item.times)}}</td>
+                                    <td>{{format(item.times*item.power)}}</td>
+                                    <td class="text-right">
+                                        <button @click="deleteItem(index)"
+                                            class="btn rounded-circle btn-outline-danger text-white"
+                                            data-toggle="tooltip" title="刪除此項">
+                                            <i class="fas fa-minus"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </transition>
                 </div>
             </section>
-        </section>
+        </div>
         <!-- footer -->
-        <section class="section-footer jumbotron jumbotron-fluid border-top m-0 p-2 text-center">
+        <div class="footer jumbotron jumbotron-fluid border-top m-0 p-2 text-center">
             <a href="https://github.com/jessie150271" target="_blank" class="h1 text-white">
                 <i class="fab fa-github h2"></i></a>
             <p>&copy;2020 Jessie Huang All Rights Reserved</p>
-        </section>
+            <p>因交易系統小數點進位無法評估，本應用採無條件進位，可能有大於實際數值2位數以內的誤差，請多加留意！</p>
+        </div>
     </div>
 
-    <script>
-        var _ = require('lodash');
-    </script>
     <script>
         new Vue({
             el: '#app',
             data: {
+                reducing: 12.34,
+                isValuePack: true,
                 item: {
+                    'destination': '',
                     'power': '',
                     'times': ''
                 },
                 items: [],
+                source: []
+            },
+            mounted() {
+                axios.get('https://spreadsheets.google.com/feeds/cells/144CE28gj9di95tqLR4NPVg5cl6O4PqUeyhH0LFNFXSE/1/public/values?alt=json')
+                    .then(response => {
+                        // console.log(response.data.feed.entry);
+                        // console.log(response.data.feed.entry.filter(x => x.gs$cell.col === "1").map(x => x.gs$cell));
+                        // console.log(response.data.feed.entry.filter(x => x.gs$cell.col === "2").map(x => x.gs$cell));
+                        let names = response.data.feed.entry.filter(x => x.gs$cell.col === "1").map(x => x.gs$cell);
+                        let powers = response.data.feed.entry.filter(x => x.gs$cell.col === "2").map(x => x.gs$cell);
+                        names.forEach(x => {
+                            this.source.push({
+                                'name': x.$t,
+                                'power': powers.find(y => y.row === x.row).numericValue
+                            });
+                        });
+                        console.log(this.source)
+                    });
             },
             methods: {
                 add: function (num = 1) {
@@ -175,12 +308,18 @@
                 addItem() {
                     this.item.power = this.item.power || 0;
                     this.item.times = this.item.times || 0;
-                    this.items.push(_.cloneDeep(this.item));
+                    this.items.splice(0, 0, _.cloneDeep(this.item));
                     this.item.power = '';
                     this.item.times = '';
                 },
                 deleteItem: function (index) {
                     this.items.splice(index, 1);
+                },
+                deleteAll: function () {
+                    this.items.splice(0,this.items.length);
+                },
+                format: function (num) {
+                    return accounting.formatNumber(num);
                 },
             },
             computed: {
@@ -188,15 +327,19 @@
                     return this.items.reduce((accumulator, current) => {
                         return accumulator + (current.power * current.times);
                     }, 0);
+                },
+                totalColor: function () {
+                    return {
+                        'color': this.totalPower > 1000000 ? '#ff2266' : '#008cff'
+                    };
                 }
-            },
-            mounted() {
-                console.log(this.$refs.wrapper)
             }
         })
     </script>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
         crossorigin="anonymous"></script>
