@@ -75,14 +75,6 @@
             margin: auto;
         }
 
-        .calcBtn {
-            margin-left: -5px;
-        }
-
-        .addBtn {
-            background-color: #555;
-        }
-
         table {
             transition: all .5;
         }
@@ -98,24 +90,41 @@
             margin-bottom: 1rem;
         }
 
-        .input-isValuePack {
-            justify-content: flex-start;
-        }
-
         .input-reducing {
             justify-content: flex-end;
+            flex-grow: 0;
+            padding-left: 27px;
+            padding-right: 3px;
         }
 
-        .input-power,
-        .input-times {
-            justify-content: center;
+        .input-isValuePack {
+            justify-content: flex-start;
+            flex-grow: 0;
+            padding-left: 3px;
+            padding-right: 27px;
         }
 
         .percentage {
             position: absolute;
-            top: 6px;
-            right: 20px;
+            top: 7px;
+            right: 10px;
             z-index: 999;
+        }
+
+        .clear {
+            position: absolute;
+            top: -2px;
+            right: 8px;
+            z-index: -1;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: transparent;
+        }
+
+        .times:hover .clear {
+            z-index: 999;
+            color: #fff;
+            transition: all .5s;
         }
 
         #reducing {
@@ -132,10 +141,22 @@
             opacity: 0
         }
 
-        th button{
-            max-width: 40px;
+        .fixBtn {
+            width: 40px;
+            height: 40px;
+            font-size: 15px;
         }
 
+        .btn-outline-light {
+            border-left: 0px;
+        }
+
+        input:hover,
+        input:focus,
+        .input-isValuePack:hover .label-isValuePack {
+            background-color: #2d2d2d !important;
+            transition: all .4s;
+        }
     </style>
 </head>
 
@@ -144,113 +165,131 @@
         <div class="main">
             <!-- new -->
             <section class="section-new row">
-                <div class="col-12 col-sm-6 offset-sm-3 col-md-4 offset-md-4 new-form text-center p-0">
-                    <h1 class="h3 my-3">交涉力計算機</h1>
-                    <div class="row">
-                        <div class="col-7 p-0">
-                            <td class="row">
-                                <div class="col input-group input-reducing pr-xs-0" data-toggle="tooltip"
+                <div class="col-12 new-form text-center">
+                    <h1 class="h4 my-3">交涉力計算機</h1>
+                    <div class="row flex-nowrap mx-auto" style="width: 290px; max-width: 95vw;">
+                        <!-- 減少 -->
+                        <div class="col p-0">
+                            <div class="row">
+                                <div class="col input-group input-reducing" data-toggle="tooltip"
                                     title="交易等級影響的減少數值(%)">
                                     <div class="input-group-prepend">
                                         <label class="input-group-text" for="reducing">減少</label>
                                     </div>
-                                    <div class="percentage">%</div>
-                                    <input type="number" step="0.01" id="reducing"
-                                        class="form-control text-center col-5 col-sm-12 col-md-6" v-model="reducing"
-                                        style="width: 70px;">
+                                    <label class="percentage" for="reducing">%</label>
+                                    <input type="number" step="0.01" id="reducing" class="form-control text-center"
+                                        v-model="reducing" style="max-width: 80px; min-width: 80px;">
                                 </div>
-                            </td>
+                            </div>
                         </div>
-                        <div class="col-5 p-0">
-                            <td class="row">
-                                <div class="col input-group input-isValuePack pl-1 pr-xs-0">
+                        <!-- 禮包 -->
+                        <div class="col p-0">
+                            <div class="row">
+                                <div class="col input-group input-isValuePack" data-toggle="tooltip"
+                                    title="價值禮包減少10%所需交涉力">
                                     <div class="input-group-prepend">
                                         <label class="input-group-text" for="isValuePack">禮包</label>
                                     </div>
                                     <div class="input-group-append">
-                                        <label class="input-group-text" for="isValuePack">
+                                        <label class="input-group-text label-isValuePack" for="isValuePack">
                                             <!-- hidden checkbox -->
-                                            <input type="checkbox" id="isValuePack" class="d-none" v-model="isValuePack"
-                                                style="width: 30px;">
+                                            <input type="checkbox" id="isValuePack" class="d-none"
+                                                v-model="isValuePack">
                                             <!-- custom display -->
                                             <i v-if="isValuePack" class="fas fa-check" style="width: 1rem;"></i>
                                             <i v-else class="fas fa-times" style="width: 1rem;"></i>
                                         </label>
                                     </div>
                                 </div>
-                            </td>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12 p-0">
-                            <td class="row">
-                                <div class="col-12 input-group input-power">
+                            <div class="row mx-auto" style="width: 202px; max-width: 95vw;">
+                                <!-- 目的地 -->
+                                <div class="col-12 input-group justify-content-center">
                                     <div class="input-group-prepend">
-                                        <label class="input-group-text" for="power">目的地</label>
+                                        <label class="input-group-text" for="destination">目的地</label>
                                     </div>
-                                    <input type="number" id="power"
-                                        class="form-control text-center col-5 col-sm-12 col-md-6" v-model="item.power">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-light dropdown-toggle" type="button"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            style="width: 130px;">{{target.destination}}</button>
+                                        <div class="dropdown-menu" style="min-width: 130px;max-width: 130px;">
+                                            <a v-for="(item, index) in source" :key="index" class="dropdown-item px-4"
+                                                href="javascript: void(0)"
+                                                @click="selectDestination(item)">{{item.destination}}</a>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-12 input-group input-times">
+                                <!-- 交涉力 -->
+                                <div class="col-12 input-group justify-content-center">
                                     <div class="input-group-prepend">
-                                        <label class="input-group-text" for="times">次　數</label>
+                                        <label class="input-group-text" for="power">交涉力</label>
                                     </div>
-                                    <input type="number" id="times"
-                                        class="form-control text-center col-5 col-sm-12 col-md-6" v-model="item.times">
+                                    <input type="number" id="power" class="form-control text-center"
+                                        v-model="totalReducing" style="max-width: 130px; min-width: 130px;">
                                 </div>
-                                <div class="col-12 d-flex flex-nowrap justify-content-center">
-                                    <button @click="add(1)" class="btn rounded-circle btn-outline-secondary text-white"
-                                        style="width:2.5rem"><span class="calcBtn">+1</span></button>
-                                    <button @click="add(2)" class="btn rounded-circle btn-outline-secondary text-white"
-                                        style="width:2.5rem"><span class="calcBtn">+2</span></button>
-                                    <button @click="add(3)" class="btn rounded-circle btn-outline-secondary text-white"
-                                        style="width:2.5rem"><span class="calcBtn">+3</span></button>
-                                    <button @click="add(4)" class="btn rounded-circle btn-outline-secondary text-white"
-                                        style="width:2.5rem"><span class="calcBtn">+4</span></button>
-                                    <button @click="add(5)" class="btn rounded-circle btn-outline-secondary text-white"
-                                        style="width:2.5rem"><span class="calcBtn">+5</span></button>
-                                    <button @click="add(6)" class="btn rounded-circle btn-outline-secondary text-white"
-                                        style="width:2.5rem"><span class="calcBtn">+6</span></button>
+                                <!-- 次數 -->
+                                <div class="col-12 input-group justify-content-center times">
+                                    <div class="input-group-prepend">
+                                        <label class="input-group-text" for="times">&nbsp;次&nbsp;數&nbsp;</label>
+                                    </div>
+                                    <div class="clear" @click="target.times=''">&times;</div>
+                                    <input type="number" id="times" class="form-control text-center"
+                                        v-model="target.times" style="max-width: 130px; min-width: 130px;">
                                 </div>
-                            </td>
+                                <!-- 次數按鈕 -->
+                                <div class="col-12 d-inline-flex flex-nowrap justify-content-center">
+                                    <button v-for="(num, index) in [...Array(6)].map((x,i) => i + 1)" :key="index"
+                                        @click="add(num)" class="btn rounded-circle btn-outline-secondary text-white"
+                                        style="width: 2.5rem; margin: 2px;">
+                                        <span style="margin-left: -5px;">+{{num}}</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-12 btn-wrap text-center border-bottom">
-                            <button @click="addItem" class="btn rounded-circle btn-outline-primary text-white my-3">
+                        <!-- 新增按鈕 -->
+                        <div class="col-12 btn-wrap text-center">
+                            <button @click="addTarget"
+                                class="btn rounded-circle btn-outline-primary text-white my-3 fixBtn"
+                                data-toggle="tooltip" title="新增目的地">
                                 <i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- for -->
-            <section class="section-arr row my-3">
-                <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
+            <!-- table -->
+            <section class="section-table row border-top">
+                <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4 my-3">
                     <div class="total text-center">
                         <span class="h3" :style="totalColor">{{format(totalPower)}}</span>
                     </div>
                     <transition name="fade">
-                        <table v-show="items.length" class="table table-dark table-hover">
-                            <thead >
+                        <table v-show="targets.length" class="table table-dark table-hover">
+                            <thead>
                                 <tr>
-                                    <th class="col-xs-3 px-0 py-3 border-top-0">目的地</th>
-                                    <th class="col-xs-3 px-0 py-3 border-top-0">交涉力</th>
-                                    <th class="col-xs-2 px-0 py-3 border-top-0">次數</th>
-                                    <th class="col-xs-3 px-0 py-3 border-top-0">總計</th>
+                                    <th class="col-xs-6 px-0 py-3 border-top-0">目的地</th>
+                                    <th class="col-xs-2 px-0 py-3 border-top-0">交涉力</th>
+                                    <th class="col-xs-1 px-0 py-3 border-top-0">次數</th>
+                                    <th class="col-xs-2 px-0 py-3 border-top-0">總計</th>
                                     <th class="col-xs-1 text-right border-top-0"><button @click="deleteAll"
-                                            class="btn rounded-circle btn-outline-success text-white"
+                                            class="btn rounded-circle btn-outline-success text-white fixBtn"
                                             data-toggle="tooltip" title="重置">
                                             <i class="fas fa-redo-alt"></i></button></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="(item, index) in items" :key="index">
-                                    <td>{{item.destination}}</td>
-                                    <td>{{format(item.power)}}</td>
+                            <tbody name="fade" is="transition-group">
+                                <tr v-for="(item, index) in targets" :key="index">
+                                    <td style="font-size: small;">{{item.destination}}</td>
+                                    <td>{{format(item.reducedPower)}}</td>
                                     <td>{{format(item.times)}}</td>
-                                    <td>{{format(item.times*item.power)}}</td>
+                                    <td>{{format(item.times*item.reducedPower)}}</td>
                                     <td class="text-right">
-                                        <button @click="deleteItem(index)"
-                                            class="btn rounded-circle btn-outline-danger text-white"
+                                        <button @click="deleteTarget(index)"
+                                            class="btn rounded-circle btn-outline-danger text-white fixBtn"
                                             data-toggle="tooltip" title="刪除此項">
                                             <i class="fas fa-minus"></i></button></td>
                                 </tr>
@@ -265,7 +304,7 @@
             <a href="https://github.com/jessie150271" target="_blank" class="h1 text-white">
                 <i class="fab fa-github h2"></i></a>
             <p>&copy;2020 Jessie Huang All Rights Reserved</p>
-            <p>因交易系統小數點進位無法評估，本應用採無條件進位，可能有大於實際數值2位數以內的誤差，請多加留意！</p>
+            <p>因交易系統小數點進位無法評估，可能與實際數值有正負1的誤差，有需要可自行修正交涉力數值。</p>
         </div>
     </div>
 
@@ -275,13 +314,15 @@
             data: {
                 reducing: 12.34,
                 isValuePack: true,
-                item: {
+                target: {
                     'destination': '',
+                    'reducedPower': '',
                     'power': '',
                     'times': ''
                 },
-                items: [],
-                source: []
+                targets: [],
+                source: [],
+                dictionary: {}
             },
             mounted() {
                 axios.get('https://spreadsheets.google.com/feeds/cells/144CE28gj9di95tqLR4NPVg5cl6O4PqUeyhH0LFNFXSE/1/public/values?alt=json')
@@ -292,40 +333,65 @@
                         let names = response.data.feed.entry.filter(x => x.gs$cell.col === "1").map(x => x.gs$cell);
                         let powers = response.data.feed.entry.filter(x => x.gs$cell.col === "2").map(x => x.gs$cell);
                         names.forEach(x => {
+                            this.dictionary[x.$t] = parseFloat(powers.find(y => y.row === x.row).numericValue);
                             this.source.push({
-                                'name': x.$t,
-                                'power': powers.find(y => y.row === x.row).numericValue
+                                'destination': x.$t,
+                                'power': this.dictionary[x.$t]
                             });
                         });
-                        console.log(this.source)
+                        console.log(this.source);
+                        console.log(this.dictionary);
+                        this.target.destination = this.source[0].destination;
+                        this.target.power = this.source[0].power;
+                        this.target.reducedPower = Math.round(this.target.power * (1 - this.reducing / 100.0 - (this.isValuePack ? 10.0 : 0.0) / 100));
                     });
             },
             methods: {
+                selectDestination: function (obj) {
+                    this.target.destination = obj.destination;
+                    this.target.power = obj.power;
+                },
                 add: function (num = 1) {
-                    this.item.times = this.item.times || 0;
-                    this.item.times += parseInt(num);
+                    this.target.times = this.target.times || 0;
+                    this.target.times += parseInt(num);
                 },
-                addItem() {
-                    this.item.power = this.item.power || 0;
-                    this.item.times = this.item.times || 0;
-                    this.items.splice(0, 0, _.cloneDeep(this.item));
-                    this.item.power = '';
-                    this.item.times = '';
+                addTarget: function () {
+                    this.target.power = this.target.power || 0;
+                    this.target.reducedPower = this.target.reducedPower || 0;
+                    this.target.times = this.target.times || 0;
+                    this.targets.push(_.cloneDeep(this.target));
+                    // this.targets.splice(0, 0, _.cloneDeep(this.target));
+                    this.target.times = '';
                 },
-                deleteItem: function (index) {
-                    this.items.splice(index, 1);
+                deleteTarget: function (index) {
+                    this.targets.splice(index, 1);
                 },
                 deleteAll: function () {
-                    this.items.splice(0,this.items.length);
+                    this.targets.splice(0, this.targets.length);
                 },
                 format: function (num) {
                     return accounting.formatNumber(num);
-                },
+                }
             },
             computed: {
+                totalReducing: {
+                    get() {
+                        // let r = this.reducing / 100.0;
+                        // let v = (this.isValuePack ? 10.0 : 0.0) / 100.0;
+                        // let ret = 1.0 - r - v;
+                        // // this.target.reducedPower = Math.round(this.target.power * ret);
+                        // return ret;
+                        let ret = Math.round(this.target.power * (1.0 - this.reducing / 100.0 - (this.isValuePack ? 10.0 : 0.0) / 100.0));
+                        this.target.reducedPower = ret;
+                        return ret;
+                    },
+                    set(newValue) {
+                        this.target.reducedPower = newValue;
+                    }
+                },
                 totalPower: function () {
-                    return this.items.reduce((accumulator, current) => {
-                        return accumulator + (current.power * current.times);
+                    return this.targets.reduce((accumulator, current) => {
+                        return accumulator + (current.reducedPower * current.times);
                     }, 0);
                 },
                 totalColor: function () {
