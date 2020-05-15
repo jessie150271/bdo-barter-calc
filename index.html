@@ -113,11 +113,15 @@
 
         .clear {
             position: absolute;
-            top: -2px;
-            right: 8px;
-            z-index: -1;
+            top: 0px;
+            right: 0px;
+            height: 38px;
+            line-height: 38px;
+            padding-right: 8px;
             font-size: 1.6rem;
+
             cursor: pointer;
+            z-index: -1;
             color: transparent;
         }
 
@@ -141,10 +145,18 @@
             opacity: 0
         }
 
-        .fixBtn {
+        .addBtn {
             width: 40px;
             height: 40px;
-            font-size: 15px;
+            font-size: 16px;
+            padding: 0;
+        }
+
+        .fixBtn {
+            width: 30px;
+            height: 30px;
+            font-size: 10px;
+            padding: 0;
         }
 
         .btn-outline-light {
@@ -156,6 +168,12 @@
         .input-isValuePack:hover .label-isValuePack {
             background-color: #2d2d2d !important;
             transition: all .4s;
+        }
+
+        .table-responsive {
+        }
+        .custom-table-width{
+            overflow-x: auto;
         }
     </style>
 </head>
@@ -178,7 +196,8 @@
                                     </div>
                                     <label class="percentage" for="reducing">%</label>
                                     <input type="number" step="0.01" id="reducing" class="form-control text-center"
-                                        v-model="reducing" style="max-width: 80px; min-width: 80px;">
+                                        v-model="reducing" style="max-width: 80px; min-width: 80px;"
+                                        @focus="$event.target.select()">
                                 </div>
                             </div>
                         </div>
@@ -219,7 +238,7 @@
                                         <div class="dropdown-menu" style="min-width: 130px;max-width: 130px;">
                                             <a v-for="(item, index) in source" :key="index" class="dropdown-item px-4"
                                                 href="javascript: void(0)"
-                                                @click="selectDestination(item)">{{item.destination}}</a>
+                                                @click="selectDestination(item,index)">{{item.destination}}</a>
                                         </div>
                                     </div>
                                 </div>
@@ -236,7 +255,8 @@
                                     <div class="input-group-prepend">
                                         <label class="input-group-text" for="times">&nbsp;次&nbsp;數&nbsp;</label>
                                     </div>
-                                    <div class="clear" @click="target.times=''">&times;</div>
+                                    <!-- 清除次數按鈕 -->
+                                    <div class="clear" @click="target.times=0">&times;</div>
                                     <input type="number" id="times" class="form-control text-center"
                                         v-model="target.times" style="max-width: 130px; min-width: 130px;">
                                 </div>
@@ -253,7 +273,7 @@
                         <!-- 新增按鈕 -->
                         <div class="col-12 btn-wrap text-center">
                             <button @click="addTarget"
-                                class="btn rounded-circle btn-outline-primary text-white my-3 fixBtn"
+                                class="btn rounded-circle btn-outline-primary text-white my-3 addBtn"
                                 data-toggle="tooltip" title="新增目的地">
                                 <i class="fas fa-plus"></i></button>
                         </div>
@@ -263,18 +283,20 @@
 
             <!-- table -->
             <section class="section-table row border-top">
-                <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4 my-3">
+                <div class="col-12 my-3">
                     <div class="total text-center">
                         <span class="h3" :style="totalColor">{{format(totalPower)}}</span>
                     </div>
+                </div>
+                <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4 text-center mb-3 table-responsive-sm">
                     <transition name="fade">
                         <table v-show="targets.length" class="table table-dark table-hover">
                             <thead>
-                                <tr>
-                                    <th class="col-xs-6 px-0 py-3 border-top-0">目的地</th>
-                                    <th class="col-xs-2 px-0 py-3 border-top-0">交涉力</th>
-                                    <th class="col-xs-1 px-0 py-3 border-top-0">次數</th>
-                                    <th class="col-xs-2 px-0 py-3 border-top-0">總計</th>
+                                <tr class="text-center">
+                                    <th class="col-xs-5 px-0 border-top-0 text-nowrap">目的地</th>
+                                    <th class="col-xs-2 border-top-0 text-nowrap">交涉力</th>
+                                    <th class="col-xs-1 border-top-0 text-nowrap">次數</th>
+                                    <th class="col-xs-3 border-top-0 text-nowrap">總計</th>
                                     <th class="col-xs-1 text-right border-top-0"><button @click="deleteAll"
                                             class="btn rounded-circle btn-outline-success text-white fixBtn"
                                             data-toggle="tooltip" title="重置">
@@ -282,11 +304,11 @@
                                 </tr>
                             </thead>
                             <tbody name="fade" is="transition-group">
-                                <tr v-for="(item, index) in targets" :key="index">
-                                    <td style="font-size: small;">{{item.destination}}</td>
-                                    <td>{{format(item.reducedPower)}}</td>
-                                    <td>{{format(item.times)}}</td>
-                                    <td>{{format(item.times*item.reducedPower)}}</td>
+                                <tr v-for="(item, index) in targets" :key="index" style="font-size: small;">
+                                    <td class="text-nowrap">{{item.destination}}</td>
+                                    <td class="text-nowrap">{{format(item.reducedPower)}}</td>
+                                    <td class="text-nowrap">{{format(item.times)}}</td>
+                                    <td class="text-nowrap">{{format(item.times*item.reducedPower)}}</td>
                                     <td class="text-right">
                                         <button @click="deleteTarget(index)"
                                             class="btn rounded-circle btn-outline-danger text-white fixBtn"
@@ -318,7 +340,7 @@
                     'destination': '',
                     'reducedPower': '',
                     'power': '',
-                    'times': ''
+                    'times': 0
                 },
                 targets: [],
                 source: [],
@@ -339,21 +361,52 @@
                                 'power': this.dictionary[x.$t]
                             });
                         });
-                        console.log(this.source);
-                        console.log(this.dictionary);
+                        // console.log(this.source);
+                        // console.log(this.dictionary);
                         this.target.destination = this.source[0].destination;
                         this.target.power = this.source[0].power;
                         this.target.reducedPower = Math.round(this.target.power * (1 - this.reducing / 100.0 - (this.isValuePack ? 10.0 : 0.0) / 100));
                     });
             },
             methods: {
-                selectDestination: function (obj) {
+                selectDestination: function (obj, index) {
                     this.target.destination = obj.destination;
                     this.target.power = obj.power;
+                    switch (index) {
+                        case 0:
+                            // 1~5
+                            this.target.times = 0;
+                            break;
+                        case 1:
+                            // 4幣
+                            this.target.times = 4;
+                            break;
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                            // 瓦倫島
+                            this.target.times = 1;
+                            break;
+                        case 8:
+                            // 大洋6,8,9
+                            this.target.times = 3;
+                            break;
+                        case 9:
+                            // 其他大洋
+                            this.target.times = 1;
+                            break;
+                        default:
+                            this.target.times = 1;
+                            break;
+                    }
                 },
                 add: function (num = 1) {
                     this.target.times = this.target.times || 0;
                     this.target.times += parseInt(num);
+                    
                 },
                 addTarget: function () {
                     this.target.power = this.target.power || 0;
@@ -361,7 +414,7 @@
                     this.target.times = this.target.times || 0;
                     this.targets.push(_.cloneDeep(this.target));
                     // this.targets.splice(0, 0, _.cloneDeep(this.target));
-                    this.target.times = '';
+                    // this.target.times = 0;
                 },
                 deleteTarget: function (index) {
                     this.targets.splice(index, 1);
