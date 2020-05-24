@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>BDO - 交涉力計算機v1.1</title>
+    <title>BDO - 交涉力計算機v2.0</title>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -441,11 +441,6 @@
             computed: {
                 totalReducing: {
                     get() {
-                        // let r = this.reducing / 100.0;
-                        // let v = (this.isValuePack ? 10.0 : 0.0) / 100.0;
-                        // let ret = 1.0 - r - v;
-                        // // this.target.reducedPower = Math.round(this.target.power * ret);
-                        // return ret;
                         let ret = Math.round(this.target.power * (1.0 - this.reducing / 100.0 - (this.isValuePack ? 10.0 : 0.0) / 100.0));
                         this.target.reducedPower = ret;
                         return ret;
