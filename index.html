@@ -170,8 +170,6 @@
             transition: all .4s;
         }
 
-        .table-responsive {
-        }
         .custom-table-width{
             overflow-x: auto;
         }
@@ -258,7 +256,7 @@
                                     <!-- 清除次數按鈕 -->
                                     <div class="clear" @click="target.times=0">&times;</div>
                                     <input type="number" id="times" class="form-control text-center"
-                                        v-model="target.times" style="max-width: 130px; min-width: 130px;">
+                                        v-model="target.times" style="max-width: 130px; min-width: 130px;" @focus="$event.target.select()">
                                 </div>
                                 <!-- 次數按鈕 -->
                                 <div class="col-12 d-inline-flex flex-nowrap justify-content-center">
@@ -372,6 +370,7 @@
                 selectDestination: function (obj, index) {
                     this.target.destination = obj.destination;
                     this.target.power = obj.power;
+                    // this.target.times = 0;
                     switch (index) {
                         case 0:
                             // 1~5
@@ -392,14 +391,14 @@
                             break;
                         case 8:
                             // 大洋6,8,9
-                            this.target.times = 3;
+                            this.target.times = 0;
                             break;
                         case 9:
                             // 其他大洋
-                            this.target.times = 1;
+                            this.target.times = 0;
                             break;
                         default:
-                            this.target.times = 1;
+                            this.target.times = 0;
                             break;
                     }
                 },
@@ -409,12 +408,16 @@
                     
                 },
                 addTarget: function () {
+                    if(this.target.times === 0){
+                        document.getElementById("times").focus().select();
+                        return;
+                    }
                     this.target.power = this.target.power || 0;
                     this.target.reducedPower = this.target.reducedPower || 0;
                     this.target.times = this.target.times || 0;
                     this.targets.push(_.cloneDeep(this.target));
                     // this.targets.splice(0, 0, _.cloneDeep(this.target));
-                    // this.target.times = 0;
+                    this.target.times = 0;
                 },
                 deleteTarget: function (index) {
                     this.targets.splice(index, 1);
